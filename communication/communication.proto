@@ -1,0 +1,103 @@
+syntax = "proto3";
+
+package communication;
+
+option go_package = ".";
+
+//mensaje de elecciones del jugador en el piso 1
+message Eleccion_piso1 {
+
+    int32 id_player = 1;
+    string name_player = 2;
+    int32 choice = 3;
+}
+
+//mensaje de elecciones del jugador en el piso 2
+message Eleccion_piso2 {
+
+    int32 id_player = 1;
+    string name_player = 2;
+    string choice = 3;
+}
+
+//mensaje de elecciones del jugador en el piso 3
+message Eleccion_piso3{
+
+    int32 id_player = 1;
+    string name_player = 2;
+    int32 choice = 3;
+}
+
+//mensaje de supervivencia del personaje
+message supervivencia {
+
+    int32 id_player = 1;
+    bool vida = 2;
+}
+
+//confirmacion de golpe hacia el patriarca
+message hit_patriarca {
+
+    bool golpe_patriarca = 1;
+}
+
+//peticion general de un jugador
+message peticion{
+
+    int32 id_player = 1;
+    string name_player = 2;
+}
+
+//peticion sobre las decisiones de cierta ronda aka piso de un jugador
+message peticion_ronda{
+
+    int32 id_player = 1;
+    int32 ronda = 2;
+}
+
+//Devolucion comun de peticiones de un jugador (podria usarse para todos remplazando las elecciones pero no estoy seguro)
+message Decisiones{
+
+    int32 id_player = 1;
+    string name_player = 2;
+    string choices =3;
+}
+
+//monto actual de jugador
+message monto_player {
+
+    int32 monto = 1;
+}
+
+//mensaje con proposito comun de confirmar, realmente puede ser lo que sea creo
+message confirmacion {
+
+    string confirmacion =1;
+}
+
+//señal de partida para los jugadores
+message Senal{
+
+    bool partir = 1;
+}
+
+service Director {
+    //comunicacion Director jugador
+    rpc DecisionPiso1 (Eleccion_piso1) returns (supervivencia);
+    rpc DecisionPiso2 (Eleccion_piso2) returns (supervivencia);
+    rpc DecisionPiso3 (Eleccion_piso3) returns (hit_patriarca);
+    rpc InicioPiso (Senal) returns (confirmacion);
+    rpc EstadoFinal (supervivencia) returns (confirmacion);
+
+    //comunicacion Director dosh
+    rpc DoshMonto (peticion) returns (monto_player);
+    rpc DoshAumento (peticion) returns (confirmacion);
+
+    //comunicacion director NameNode
+    rpc PeticionChoices (peticion_ronda) returns (Decisiones);
+
+    //comunicacion director NameNode y Namenode Datanode
+    rpc NameNodeP1 (Eleccion_piso1) returns (confirmacion);
+    rpc NameNodeP2 (Eleccion_piso2) returns (confirmacion);
+    rpc NameNodeP3 (Eleccion_piso3) returns (confirmacion);
+}
